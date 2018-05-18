@@ -1,4 +1,4 @@
-	.file	"rvalue_lvalue.cc"
+	.file	"lvalue_ref.cc"
 	.text
 	.globl	main
 	.type	main, @function
@@ -10,13 +10,20 @@ main:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
-	movl	$1, -8(%rbp)
-	movl	-8(%rbp), %eax
-	leal	1(%rax), %edx
-	movl	%edx, -8(%rbp)
-	movl	%eax, -4(%rbp)
+	subq	$32, %rsp
+	movq	%fs:40, %rax
+	movq	%rax, -8(%rbp)
+	xorl	%eax, %eax
+	movl	$1, -20(%rbp)
+	leaq	-20(%rbp), %rax
+	movq	%rax, -16(%rbp)
 	movl	$0, %eax
-	popq	%rbp
+	movq	-8(%rbp), %rdx
+	xorq	%fs:40, %rdx
+	je	.L3
+	call	__stack_chk_fail@PLT
+.L3:
+	leave
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
